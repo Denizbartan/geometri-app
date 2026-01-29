@@ -56,7 +56,11 @@ function goster(){
  if(s=="kare") a.innerHTML=`<input id="x" placeholder="Kenar">`;
  if(s=="dikdortgen") a.innerHTML=`<input id="x" placeholder="Kısa"><input id="y" placeholder="Uzun">`;
  if(s=="daire") a.innerHTML=`<input id="x" placeholder="Yarıçap">`;
- if(s=="ucgen") a.innerHTML=`<input id="x" placeholder="Taban"><input id="y" placeholder="Yükseklik"><input id="z" placeholder="Kenar 1"><input id="k" placeholder="Kenar 2"><input id="m" placeholder="Kenar 3">`;
+
+ if(s=="ucgen") 
+   a.innerHTML=`<input id="x" placeholder="Kenar 1">
+                <input id="y" placeholder="Kenar 2">
+                <input id="z" placeholder="Kenar 3">`;
 
  if(["besgen","altigen","yedigen","sekizgen","dokuzgen","ongen"].includes(s)){
      a.innerHTML=`<input id="x" placeholder="Kenar uzunluğu">`;
@@ -69,18 +73,16 @@ function hesapla(){
  let x = document.getElementById("x")?.value;
  let y = document.getElementById("y")?.value;
  let z = document.getElementById("z")?.value;
- let k = document.getElementById("k")?.value;
- let m = document.getElementById("m")?.value;
 
- let inputs = [x,y,z,k,m].filter(v => v !== undefined);
+ let inputs = [x,y,z].filter(v => v !== undefined);
  if(inputs.some(v => v === "")){
      sonuc.innerHTML = "❗ Lütfen tüm alanları doldur.";
      return;
  }
 
- x = Number(x); y = Number(y); z = Number(z); k = Number(k); m = Number(m);
+ x = Number(x); y = Number(y); z = Number(z);
 
- if([x,y,z,k,m].some(v => isNaN(v) || v <= 0)){
+ if([x,y,z].some(v => isNaN(v) || v <= 0)){
      sonuc.innerHTML = "❗ Pozitif sayı gir.";
      return;
  }
@@ -103,12 +105,14 @@ function hesapla(){
  }
 
  if(s=="ucgen"){
-     if(!(z+k>m && z+m>k && k+m>z)){
+     if(!(x+y>z && x+z>y && y+z>x)){
          sonuc.innerHTML = "❌ Bu kenarlarla üçgen olmaz!";
          return;
      }
-     alan = x*y/2;
-     cevre = z+k+m;
+
+     let u = (x+y+z)/2;
+     alan = Math.sqrt(u*(u-x)*(u-y)*(u-z));
+     cevre = x+y+z;
  }
 
  if(["besgen","altigen","yedigen","sekizgen","dokuzgen","ongen"].includes(s)){
