@@ -2,8 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Geometri App</title>
-<link rel="manifest" href="manifest.json">
+<title>Geometri Web Uygulaması</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
@@ -20,13 +19,14 @@ input,select,button{
 }
 button{
     background:#00c3ff;
+    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📐 Geometri Web App</h1>
+<h1>📐 Geometri Hesaplayıcı</h1>
 
 <select id="sekil" onchange="goster()">
 <option value="">Şekil seç</option>
@@ -34,6 +34,12 @@ button{
 <option value="dikdortgen">Dikdörtgen</option>
 <option value="daire">Daire</option>
 <option value="ucgen">Üçgen</option>
+<option value="besgen">Beşgen</option>
+<option value="altigen">Altıgen</option>
+<option value="yedigen">Yedigen</option>
+<option value="sekizgen">Sekizgen</option>
+<option value="dokuzgen">Dokuzgen</option>
+<option value="ongen">Ongen</option>
 </select>
 
 <div id="alanlar"></div>
@@ -46,32 +52,80 @@ button{
 function goster(){
  let s=sekil.value, a=alanlar;
  a.innerHTML="";
+
  if(s=="kare") a.innerHTML=`<input id="x" placeholder="Kenar">`;
  if(s=="dikdortgen") a.innerHTML=`<input id="x" placeholder="Kısa"><input id="y" placeholder="Uzun">`;
  if(s=="daire") a.innerHTML=`<input id="x" placeholder="Yarıçap">`;
- if(s=="ucgen") a.innerHTML=`<input id="x" placeholder="Taban"><input id="y" placeholder="Yükseklik"><input id="z" placeholder="K1"><input id="k" placeholder="K2"><input id="m" placeholder="K3">`;
+ if(s=="ucgen") a.innerHTML=`<input id="x" placeholder="Taban"><input id="y" placeholder="Yükseklik"><input id="z" placeholder="Kenar 1"><input id="k" placeholder="Kenar 2"><input id="m" placeholder="Kenar 3">`;
+
+ if(["besgen","altigen","yedigen","sekizgen","dokuzgen","ongen"].includes(s)){
+     a.innerHTML=`<input id="x" placeholder="Kenar uzunluğu">`;
+ }
 }
 
 function hesapla(){
- let s=sekil.value;
- let x=+document.getElementById("x")?.value;
- let y=+document.getElementById("y")?.value;
- let z=+document.getElementById("z")?.value;
- let k=+document.getElementById("k")?.value;
- let m=+document.getElementById("m")?.value;
+ let s = sekil.value;
+
+ let x = document.getElementById("x")?.value;
+ let y = document.getElementById("y")?.value;
+ let z = document.getElementById("z")?.value;
+ let k = document.getElementById("k")?.value;
+ let m = document.getElementById("m")?.value;
+
+ let inputs = [x,y,z,k,m].filter(v => v !== undefined);
+ if(inputs.some(v => v === "")){
+     sonuc.innerHTML = "❗ Lütfen tüm alanları doldur.";
+     return;
+ }
+
+ x = Number(x); y = Number(y); z = Number(z); k = Number(k); m = Number(m);
+
+ if([x,y,z,k,m].some(v => isNaN(v) || v <= 0)){
+     sonuc.innerHTML = "❗ Pozitif sayı gir.";
+     return;
+ }
 
  let alan=0, cevre=0;
- if(s=="kare"){ alan=x*x; cevre=4*x; }
- if(s=="dikdortgen"){ alan=x*y; cevre=2*(x+y); }
- if(s=="daire"){ alan=Math.PI*x*x; cevre=2*Math.PI*x; }
- if(s=="ucgen"){ alan=x*y/2; cevre=z+k+m; }
 
- sonuc.innerHTML=`Alan: ${alan.toFixed(2)} | Çevre: ${cevre.toFixed(2)}`;
-}
+ if(s=="kare"){
+     alan = x*x;
+     cevre = 4*x;
+ }
 
-// service worker
-if("serviceWorker" in navigator){
- navigator.serviceWorker.register("sw.js");
+ if(s=="dikdortgen"){
+     alan = x*y;
+     cevre = 2*(x+y);
+ }
+
+ if(s=="daire"){
+     alan = Math.PI*x*x;
+     cevre = 2*Math.PI*x;
+ }
+
+ if(s=="ucgen"){
+     if(!(z+k>m && z+m>k && k+m>z)){
+         sonuc.innerHTML = "❌ Bu kenarlarla üçgen olmaz!";
+         return;
+     }
+     alan = x*y/2;
+     cevre = z+k+m;
+ }
+
+ if(["besgen","altigen","yedigen","sekizgen","dokuzgen","ongen"].includes(s)){
+     let n = {
+         besgen:5,
+         altigen:6,
+         yedigen:7,
+         sekizgen:8,
+         dokuzgen:9,
+         ongen:10
+     }[s];
+
+     alan = (n * x * x) / (4 * Math.tan(Math.PI / n));
+     cevre = n * x;
+ }
+
+ sonuc.innerHTML = `Alan: ${alan.toFixed(2)} | Çevre: ${cevre.toFixed(2)}`;
 }
 </script>
 
